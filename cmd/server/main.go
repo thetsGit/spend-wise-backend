@@ -4,33 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
+	"github.com/thetsGit/spend-wise-be/internal/ai"
 	"github.com/thetsGit/spend-wise-be/internal/config"
-	"github.com/thetsGit/spend-wise-be/internal/database"
 )
-
-func hello(w http.ResponseWriter, req *http.Request) {
-	config := config.Load()
-	db, err := database.Connect(config)
-
-	if err != nil {
-		fmt.Fprintf(w, "failed to create pool: %w", err)
-		return
-	}
-
-	db.Close()
-
-	fmt.Fprintf(w, "hello\n")
-}
-
-func headers(w http.ResponseWriter, req *http.Request) {
-
-	for name, headers := range req.Header {
-		for _, h := range headers {
-			fmt.Fprintf(w, "%v: %v\n", name, h)
-		}
-	}
-}
 
 func main() {
 	// Bootstrap things and prepare environment
@@ -38,8 +16,21 @@ func main() {
 
 	config := config.Load()
 
-	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/headers", headers)
+	r := chi.NewRouter()
 
-	http.ListenAndServe(fmt.Sprintf(":%v", config.HTTP_PORT), nil)
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"status": "ok"}`))
+	})
+
+	r.Get("/sing", func(w http.ResponseWriter, r *http.Request) {
+		result, err := ai.CallOpenAI("Sing me a song", config)
+		if err != nil {
+			fmt.Fprintf(w, `{"status": "error", "error": "%s"}`, err.Error())
+			return
+		}
+		fmt.Fprintf(w, `{"status": "success", "result": "%s"}`, result)
+	})
+
+	// fmt.Printf("Server starting on :%s", config)
+	http.ListenAndServe(":"+config.HTTPPort, r)
 }
