@@ -1,0 +1,58 @@
+[
+  {
+    "from": "receipts@uber.com",
+    "to": "user@example.com",
+    "subject": "Your trip with Uber - $24.50",
+    "body": "Thanks for riding with Uber. Your trip on June 15, 2025 cost $24.50. Payment method: Visa ending in 4242.",
+    "date": "2025-06-15T08:30:00Z"
+  },
+  {
+    "from": "no-reply@slack.com",
+    "to": "user@example.com",
+    "subject": "Your Slack Pro invoice for July 2025",
+    "body": "Hi, your Slack Pro plan has been renewed. Amount: $8.75/user × 12 users = $105.00. Billing cycle: monthly. Next invoice: August 1, 2025.",
+    "date": "2025-07-01T00:00:00Z"
+  },
+  {
+    "from": "billing@notion.so",
+    "to": "user@example.com",
+    "subject": "Notion Plus - Payment received",
+    "body": "We've received your payment of $10.00 for Notion Plus (monthly). Your next billing date is August 5, 2025.",
+    "date": "2025-07-05T12:00:00Z"
+  },
+  {
+    "from": "noreply@grab.com",
+    "to": "user@example.com",
+    "subject": "Your GrabFood order receipt",
+    "body": "Order total: $18.90. Restaurant: Som Tam Nua. Delivered on July 3, 2025. Paid with GrabPay.",
+    "date": "2025-07-03T19:45:00Z"
+  },
+  {
+    "from": "team@linear.app",
+    "to": "user@example.com",
+    "subject": "Welcome to Linear",
+    "body": "Welcome to Linear! Your workspace is ready. Start tracking issues and building products with your team. Get started at linear.app.",
+    "date": "2025-07-06T10:00:00Z"
+  },
+  {
+    "from": "invoices@figma.com",
+    "to": "user@example.com",
+    "subject": "Figma Professional - Invoice #4821",
+    "body": "Invoice for Figma Professional plan. Amount: $15.00/editor × 5 editors = $75.00. Billing cycle: monthly. Payment received.",
+    "date": "2025-07-01T06:00:00Z"
+  },
+  {
+    "from": "no-reply@amazon.com",
+    "to": "user@example.com",
+    "subject": "Your Amazon order has shipped",
+    "body": "Your order of 'Sony WH-1000XM5 Headphones' ($298.00) has shipped. Estimated delivery: July 10, 2025. Track your package at amazon.com/orders.",
+    "date": "2025-07-07T14:20:00Z"
+  },
+  {
+    "from": "support@vercel.com",
+    "to": "user@example.com",
+    "subject": "Your Vercel Pro trial is expiring soon",
+    "body": "Hi, your Vercel Pro trial expires on July 15, 2025. Upgrade now to keep your Pro features. Plans start at $20/month per member.",
+    "date": "2025-07-10T09:00:00Z"
+  }
+]
