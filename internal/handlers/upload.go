@@ -20,12 +20,25 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 * (1) Parse JSON body
 	 */
 
+	/**
+	 * (1.1) Guard against large input sizes
+	 */
+
+	// Check content length first
+	if r.ContentLength > h.Config.MaxUploadSizeKB {
+		h.respondErrorJSON(w, "File too large", nil)
+		return
+	}
+
+	// Then, check body size
+	r.Body = http.MaxBytesReader(w, r.Body, h.Config.MaxUploadSizeKB)
+
 	json.Marshal(r.Body)
 
 	var emails []models.RawEmail
 	err := json.NewDecoder(r.Body).Decode(&emails)
 	if err != nil {
-		h.respondErrorJSON(w, "Failed to parse request body", err)
+		h.respondErrorJSON(w, "Request body too large or invalid JSON", err)
 		return
 	}
 

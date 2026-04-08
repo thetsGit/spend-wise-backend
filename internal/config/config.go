@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 type Config struct {
@@ -19,6 +20,9 @@ type Config struct {
 	OpenAIModel   string
 	OpenAIVersion string
 	OpenAIApiKey  string
+
+	// Input size constraints
+	MaxUploadSizeKB int64
 }
 
 func Load() *Config {
@@ -37,6 +41,14 @@ func Load() *Config {
 		OpenAIApiKey:  os.Getenv("OPEN_AI_API_KEY"),
 	}
 
+	// Input size constraints
+	maxUploadSizeKB, err := strconv.ParseInt(getEnv("MAX_UPLOAD_SIZE_KB", "20"), 10, 64)
+	if err != nil {
+		maxUploadSizeKB = 5
+	}
+	config.MaxUploadSizeKB = maxUploadSizeKB
+
+	// DB connection url
 	config.DBConnStr = fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName,
