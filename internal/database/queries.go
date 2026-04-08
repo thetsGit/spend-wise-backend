@@ -185,8 +185,7 @@ func (db *DB) GetSaaSDiscoverySummary() (models.SaaSSummary, error) {
 				END
 			), 0) as total_monthly_spend,
 			COUNT(DISTINCT product_name) as total_tools_found
-		 FROM saas_discovery
-		 WHERE estimated_cost IS NOT NULL AND billing_cycle != 'unknown'`,
+		 FROM saas_discovery`,
 	).Scan(&summary.TotalMonthlySpend, &summary.TotalToolsFound)
 	return summary, err
 }
