@@ -38,6 +38,18 @@ func main() {
 	r.Get("/api/saas", handler.GetSaasDiscoveries)
 	r.Get("/api/saas/summary", handler.GetSaasDiscoverySummary)
 
+	/**
+	 * Fallback / error routes
+	 */
+
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		handlers.RespondErrorJSON(w, "Route not found", http.StatusNotFound, nil)
+	})
+
+	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
+		handlers.RespondErrorJSON(w, "Method not allowed", http.StatusMethodNotAllowed, nil)
+	})
+
 	fmt.Printf("Server starting on :%s", config)
 	http.ListenAndServe(":"+config.HTTPPort, r)
 }

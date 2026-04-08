@@ -116,8 +116,9 @@ type UploadSummary struct {
  */
 
 type APIResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Status     string `json:"status"`
+	Message    string `json:"message"`
+	StatusCode int    `json:"status_code"`
+	Data       any    `json:"data,omitempty"`
+	Error      string `json:"error,omitempty"`
 }

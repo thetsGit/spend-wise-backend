@@ -14,7 +14,7 @@ func RespondJSON(w http.ResponseWriter, status int, data any) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func RespondErrorJSON(w http.ResponseWriter, message string, err error) {
+func RespondErrorJSON(w http.ResponseWriter, message string, statusCode int, err error) {
 	// Server side logging for obervability
 	fmt.Printf("[ERROR] %s: %v\n", message, err)
 
@@ -23,17 +23,19 @@ func RespondErrorJSON(w http.ResponseWriter, message string, err error) {
 		parsedError = err.Error()
 	}
 	RespondJSON(w, http.StatusOK, models.APIResponse{
-		Status:  "error",
-		Message: message,
-		Error:   parsedError,
+		Status:     "error",
+		Message:    message,
+		StatusCode: statusCode,
+		Error:      parsedError,
 	})
 
 }
 
-func RespondDataJSON(w http.ResponseWriter, message string, data any) {
+func RespondDataJSON(w http.ResponseWriter, message string, statusCode int, data any) {
 	RespondJSON(w, http.StatusOK, models.APIResponse{
-		Status:  "success",
-		Message: message,
-		Data:    data,
+		Status:     "success",
+		Message:    message,
+		StatusCode: statusCode,
+		Data:       data,
 	})
 }

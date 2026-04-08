@@ -15,19 +15,19 @@ func (h *Handler) GetSpending(w http.ResponseWriter, r *http.Request) {
 
 	results, err := h.DB.GetSpending(filter)
 	if err != nil {
-		RespondErrorJSON(w, "Failed to fetch spending list", err)
+		RespondErrorJSON(w, "Failed to fetch spending list", http.StatusInternalServerError, err)
 		return
 	}
 
-	RespondDataJSON(w, "Success", results)
+	RespondDataJSON(w, "Success", http.StatusOK, results)
 }
 
 func (h *Handler) GetSpendingSummary(w http.ResponseWriter, r *http.Request) {
 	summary, err := h.DB.GetSpendingSummary()
 	if err != nil {
-		RespondErrorJSON(w, "Failed to fetch spending summary", err)
+		RespondErrorJSON(w, "Failed to fetch spending summary", http.StatusInternalServerError, err)
 		return
 	}
 
-	RespondDataJSON(w, "Success", summary)
+	RespondDataJSON(w, "Success", http.StatusOK, summary)
 }
