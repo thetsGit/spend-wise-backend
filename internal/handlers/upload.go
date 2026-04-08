@@ -54,7 +54,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/**
-	 * (3) Save validate emails to database
+	 * (3) Save validated emails to database
 	 */
 
 	var formattedEmails []models.Email

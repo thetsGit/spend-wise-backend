@@ -24,6 +24,14 @@ func (db *DB) InsertEmail(e models.RawEmail) (models.Email, error) {
 		&result.Date,
 		&result.Status,
 		&result.CreatedAt)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return models.Email{}, nil // duplicated, not an error (should skip)
+		}
+		return models.Email{}, err // real error
+	}
+
 	return result, err
 }
 
