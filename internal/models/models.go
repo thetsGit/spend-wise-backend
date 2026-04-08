@@ -75,16 +75,16 @@ type AISaaSDiscoveryResult struct {
 }
 
 type SaaSDiscovery struct {
-	ID            int
-	ProductName   string
-	SignalType    string
-	BillingCycle  string
-	EstimatedCost *float64
-	Currency      string
-	AIConfidence  *string
-	Confidence    string
-	CreatedAt     time.Time
-	EmailID       int
+	ID            int       `db:"id" json:"id"`
+	ProductName   string    `db:"product_name" json:"product_name"`
+	SignalType    string    `db:"signal_type" json:"signal_type"`
+	BillingCycle  string    `db:"billing_cycle" json:"billing_cycle"`
+	EstimatedCost *float64  `db:"estimated_cost" json:"estimated_cost"`
+	Currency      string    `db:"currency" json:"currency"`
+	AIConfidence  *string   `db:"ai_confidence" json:"ai_confidence"`
+	Confidence    string    `db:"confidence" json:"confidence"`
+	CreatedAt     time.Time `db:"created_at" json:"created_at"`
+	EmailID       int       `db:"email_id" json:"email_id"`
 }
 
 type SaaSDiscoveryFilter struct {
