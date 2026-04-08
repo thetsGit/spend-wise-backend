@@ -1,0 +1,44 @@
+[
+  {
+    "from": "noreply@spotify.com",
+    "to": "user@example.com",
+    "subject": "Your Spotify Premium receipt",
+    "body": "Thanks for your payment of $9.99 for Spotify Premium (monthly). Your next billing date is August 15, 2025.",
+    "date": "2025-07-15T10:00:00Z"
+  },
+  {
+    "from": "receipts@grab.com",
+    "to": "user@example.com",
+    "subject": "Your GrabCar ride receipt",
+    "body": "Your GrabCar ride on July 12, 2025 cost THB 185.00. Payment method: GrabPay. Route: Siam to Ekkamai.",
+    "date": "2025-07-12T14:30:00Z"
+  },
+  {
+    "from": "billing@github.com",
+    "to": "user@example.com",
+    "subject": "GitHub Team - Payment receipt",
+    "body": "Payment received: $4.00/user × 8 users = $32.00 for GitHub Team plan. Billing cycle: monthly. Next invoice: August 1, 2025.",
+    "date": "2025-07-01T03:00:00Z"
+  },
+  {
+    "from": "hello@canva.com",
+    "to": "user@example.com",
+    "subject": "Welcome to Canva Pro!",
+    "body": "You've upgraded to Canva Pro! Enjoy premium templates, background remover, and more. Your annual plan: $119.99/year.",
+    "date": "2025-07-08T08:00:00Z"
+  },
+  {
+    "from": "no-reply@foodpanda.com",
+    "to": "user@example.com",
+    "subject": "Your foodpanda order confirmation",
+    "body": "Order total: THB 350.00. Restaurant: Bonchon Chicken. Delivered on July 14, 2025. Paid with credit card.",
+    "date": "2025-07-14T20:15:00Z"
+  },
+  {
+    "from": "noreply@netflix.com",
+    "to": "user@example.com",
+    "subject": "Your Netflix subscription has been renewed",
+    "body": "Your Netflix Standard plan has been renewed for $15.49/month. Next billing date: August 10, 2025.",
+    "date": "2025-07-10T00:00:00Z"
+  }
+]
