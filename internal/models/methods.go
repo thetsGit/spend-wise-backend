@@ -1,12 +1,26 @@
 package models
 
-import "github.com/thetsGit/spend-wise-be/internal/presets"
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
 
-func (email *Email) Validate() bool {
-	return email.Sender != "" && email.Recipient != "" && email.Subject != "" && !email.Date.IsZero()
+	"github.com/thetsGit/spend-wise-be/internal/presets"
+)
+
+func (email *RawEmail) Validate() bool {
+	return email.Sender != "" && email.Recipient != "" && email.Subject != "" && email.Date != ""
 }
 
-func (spending *Spending) CalculateScore() string {
+func (s *Spending) Validate() bool {
+	return s.Merchant != "" && s.Amount != nil
+}
+
+func (s *SaaSDiscovery) Validate() bool {
+	return s.ProductName != ""
+}
+
+func (spending *AISpendingResult) CalculateScore() string {
 	const MAX_SCORE = 5
 	score := 0
 
@@ -41,7 +55,7 @@ func (spending *Spending) CalculateScore() string {
 	return presets.ConfidenceMedium
 }
 
-func (saas *SaaSDiscovery) CalculateScore() string {
+func (saas *AISaaSDiscoveryResult) CalculateScore() string {
 	const MAX_SCORE = 5
 	score := 0
 
@@ -74,4 +88,20 @@ func (saas *SaaSDiscovery) CalculateScore() string {
 	}
 
 	return presets.ConfidenceMedium
+}
+
+// Parse raw AI response body, removing trailing prefix/postfix if exists
+func ParseAIResponse(raw string) ([]AIResult, error) {
+
+	parsed := strings.TrimSpace(raw)
+	parsed = strings.TrimPrefix(parsed, "```json")
+	parsed = strings.TrimPrefix(parsed, "```")
+	parsed = strings.TrimSuffix(parsed, "```")
+	parsed = strings.TrimSpace(parsed)
+
+	var results []AIResult
+	if err := json.Unmarshal([]byte(parsed), &results); err != nil {
+		return nil, fmt.Errorf("failed to parse AI response: %w", err)
+	}
+	return results, nil
 }

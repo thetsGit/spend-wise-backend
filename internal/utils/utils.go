@@ -1,6 +1,8 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+)
 
 func Normalize(raw string, preset map[string]bool, fallback string) string {
 	normalized := strings.ToLower(strings.TrimSpace(raw))

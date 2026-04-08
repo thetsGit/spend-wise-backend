@@ -17,8 +17,7 @@ func CallOpenAI(prompt string, config *config.Config) (string, error) {
 	 */
 
 	reqBody := openAIRequest{
-		Model:     config.OpenAIModel,
-		MaxTokens: config.OpenAIMaxTokens,
+		Model: config.OpenAIModel,
 		Messages: []openAIMessage{
 			{Role: "user", Content: prompt},
 		},

@@ -2,6 +2,18 @@ package models
 
 import "time"
 
+/**
+ * Business oriented entities (structs)
+ */
+
+type RawEmail struct {
+	Sender    string `json:"from"`
+	Recipient string `json:"to"`
+	Subject   string `json:"subject"`
+	Body      string `json:"body"`
+	Date      string `json:"date"`
+}
+
 type Email struct {
 	ID        int
 	Sender    string
@@ -13,13 +25,13 @@ type Email struct {
 	CreatedAt time.Time
 }
 
-type AISaaSSpendingResult struct {
-	Merchant        string    `json:"merchant"`
-	Amount          *float64  `json:"amount"`
-	Currency        string    `json:"currency"`
-	Category        string    `json:"category"`
-	TransactionDate time.Time `json:"transaction_date"`
-	Confidence      *string   `json:"confidence"`
+type AISpendingResult struct {
+	Merchant        string     `json:"merchant"`
+	Amount          *float64   `json:"amount"`
+	Currency        string     `json:"currency"`
+	Category        string     `json:"category"`
+	TransactionDate *time.Time `json:"date"`
+	Confidence      *string    `json:"confidence"`
 }
 
 type Spending struct {
@@ -59,7 +71,7 @@ type AISaaSDiscoveryResult struct {
 	BillingCycle  string   `json:"billing_cycle"`
 	EstimatedCost *float64 `json:"estimated_cost"`
 	Currency      string   `json:"currency"`
-	Confidence    string   `json:"confidence"`
+	Confidence    *string  `json:"confidence"`
 }
 
 type SaaSDiscovery struct {
@@ -83,4 +95,29 @@ type SaaSDiscoveryFilter struct {
 type SaaSSummary struct {
 	TotalMonthlySpend float64 `json:"total_monthly_spend"`
 	TotalToolsFound   int     `json:"total_tools_found"`
+}
+
+type AIResult struct {
+	EmailID  int                    `json:"email_id"`
+	Spending *AISpendingResult      `json:"spending"`
+	SaaS     *AISaaSDiscoveryResult `json:"saas"`
+}
+
+type UploadSummary struct {
+	TotalEmails   int `json:"total_emails"`
+	Inserted      int `json:"inserted"`
+	Skipped       int `json:"skipped"`
+	SpendingFound int `json:"spending_found"`
+	SaaSFound     int `json:"saas_found"`
+}
+
+/**
+ * General structs
+ */
+
+type APIResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+	Error   string `json:"error,omitempty"`
 }

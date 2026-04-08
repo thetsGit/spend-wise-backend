@@ -8,15 +8,14 @@ import (
 	"github.com/thetsGit/spend-wise-be/internal/models"
 )
 
-func (db *DB) InsertEmail(e models.Email) (models.Email, error) {
+func (db *DB) InsertEmail(e models.RawEmail) (models.Email, error) {
 	var result models.Email
 	err := db.Pool.QueryRow(
 		context.Background(),
-		`INSERT INTO email (sender, recipient, subject, body, date, status)
-		 VALUES ($1, $2, $3, $4, $5, $6)
-		 ON CONFLICT (sender, recipient, subject, date) DO NOTHING
-		 RETURNING id`,
-		e.Sender, e.Recipient, e.Subject, e.Body, e.Date, e.Status,
+		`INSERT INTO email (sender, recipient, subject, body, date)
+		 VALUES ($1, $2, $3, $4, $5)
+		 ON CONFLICT (sender, recipient, subject, date) DO NOTHING RETURNING *`,
+		e.Sender, e.Recipient, e.Subject, e.Body, e.Date,
 	).Scan(&result.ID,
 		&result.Sender,
 		&result.Recipient,
@@ -38,12 +37,12 @@ func (db *DB) UpdateEmailStatus(id int, status string) (string, error) {
 	return updatedStatus, err
 }
 
-func (d *DB) InsertSpending(s models.Spending) error {
+func (db *DB) InsertSpending(s models.Spending) (models.Spending, error) {
 	var result models.Spending
-	err := d.Pool.QueryRow(
+	err := db.Pool.QueryRow(
 		context.Background(),
 		`INSERT INTO spending (email_id, merchant, amount, currency, category, transaction_date, ai_confidence, confidence)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
 		s.EmailID, s.Merchant, s.Amount, s.Currency, s.Category, s.TransactionDate, s.AIConfidence, s.Confidence,
 	).Scan(
 		&result.ID,
@@ -56,20 +55,19 @@ func (d *DB) InsertSpending(s models.Spending) error {
 		&result.CreatedAt,
 		&result.EmailID,
 	)
-	return err
+	return result, err
 }
 
-func (db *DB) InsertSaaSDetection(s models.SaaSDiscovery) (models.SaaSDiscovery, error) {
+func (db *DB) InsertSaaSDiscovery(s models.SaaSDiscovery) (models.SaaSDiscovery, error) {
 	var result models.SaaSDiscovery
 	err := db.Pool.QueryRow(
 		context.Background(),
 		`INSERT INTO saas_discovery (email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id, email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence, created_at`,
+         RETURNING *`,
 		s.EmailID, s.ProductName, s.SignalType, s.BillingCycle, s.EstimatedCost, s.Currency, s.AIConfidence, s.Confidence,
 	).Scan(
 		&result.ID,
-		&result.EmailID,
 		&result.ProductName,
 		&result.SignalType,
 		&result.BillingCycle,
@@ -78,11 +76,12 @@ func (db *DB) InsertSaaSDetection(s models.SaaSDiscovery) (models.SaaSDiscovery,
 		&result.AIConfidence,
 		&result.Confidence,
 		&result.CreatedAt,
+		&result.EmailID,
 	)
 	return result, err
 }
 
-func (d *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, error) {
+func (db *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, error) {
 	query := `SELECT id, email_id, merchant, amount, currency, category, transaction_date, ai_confidence, confidence, created_at
 		FROM spending WHERE 1=1`
 	args := []any{}
@@ -106,16 +105,16 @@ func (d *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, error
 
 	query += " ORDER BY transaction_date DESC"
 
-	rows, err := d.Pool.Query(context.Background(), query, args...)
+	rows, err := db.Pool.Query(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}
 	return pgx.CollectRows(rows, pgx.RowToStructByName[models.Spending])
 }
 
-func (d *DB) GetSpendingSummary() (models.SpendingSummary, error) {
+func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
 	var categories []models.CategorySummary
-	rows, err := d.Pool.Query(
+	rows, err := db.Pool.Query(
 		context.Background(),
 		`SELECT category, COALESCE(SUM(amount), 0) as total_spend, COUNT(*) as count
 		 FROM spending
@@ -146,7 +145,7 @@ func (d *DB) GetSpendingSummary() (models.SpendingSummary, error) {
 	}, nil
 }
 
-func (d *DB) GetSaaSDetections(filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
+func (db *DB) GetSaaSDetections(filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
 
 	query := `SELECT id, email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence, created_at
 	 FROM saas_discovery WHERE 1=1`
@@ -167,16 +166,16 @@ func (d *DB) GetSaaSDetections(filter models.SaaSDiscoveryFilter) ([]models.SaaS
 
 	query += " ORDER BY product_name, created_at DESC"
 
-	rows, err := d.Pool.Query(context.Background(), query, args...)
+	rows, err := db.Pool.Query(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
 	}
 	return pgx.CollectRows(rows, pgx.RowToStructByName[models.SaaSDiscovery])
 }
 
-func (d *DB) GetSaaSSummary() (models.SaaSSummary, error) {
+func (db *DB) GetSaaSSummary() (models.SaaSSummary, error) {
 	var summary models.SaaSSummary
-	err := d.Pool.QueryRow(
+	err := db.Pool.QueryRow(
 		context.Background(),
 		`SELECT
 			COALESCE(SUM(

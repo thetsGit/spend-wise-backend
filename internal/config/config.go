@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 )
 
 type Config struct {
@@ -15,12 +14,11 @@ type Config struct {
 	DBConnStr  string
 	HTTPPort   string
 
-	// Open AI configs (AI)
-	OpenAIUrl       string
-	OpenAIModel     string
-	OpenAIVersion   string
-	OpenAIApiKey    string
-	OpenAIMaxTokens int
+	// Open AI configs for AI service
+	OpenAIUrl     string
+	OpenAIModel   string
+	OpenAIVersion string
+	OpenAIApiKey  string
 }
 
 func Load() *Config {
@@ -32,7 +30,7 @@ func Load() *Config {
 		DBName:     getEnv("POSTGRES_DB", "spend_wise"),
 		HTTPPort:   getEnv("HTTP_PORT", "8000"),
 
-		// OpenAI configs for AI
+		// OpenAI configs for AI service
 		OpenAIUrl:     getEnv("OPEN_AI_URL", "https://api.anthropic.com/v1/messages"),
 		OpenAIModel:   getEnv("OPEN_AI_MODEL", "claude-sonnet-4-6"),
 		OpenAIVersion: getEnv("OPEN_AI_VERSION", "2023-06-01"),
@@ -43,15 +41,6 @@ func Load() *Config {
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName,
 	)
-
-	// Parse 'OPEN_AI_MAX_TOKENS' to int
-	maxTokens, err := strconv.Atoi(getEnv("OPEN_AI_MAX_TOKENS", "1024"))
-
-	if err != nil {
-		maxTokens = 1024
-	}
-
-	config.OpenAIMaxTokens = maxTokens
 
 	return config
 }

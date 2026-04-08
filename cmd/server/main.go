@@ -8,6 +8,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/thetsGit/spend-wise-be/internal/ai"
 	"github.com/thetsGit/spend-wise-be/internal/config"
+	"github.com/thetsGit/spend-wise-be/internal/database"
+	"github.com/thetsGit/spend-wise-be/internal/handlers"
 )
 
 func main() {
@@ -15,6 +17,14 @@ func main() {
 	godotenv.Load()
 
 	config := config.Load()
+
+	connection, err := database.Connect(config)
+
+	if err != nil {
+
+	}
+
+	handler := handlers.CreateHandlers(connection, config)
 
 	r := chi.NewRouter()
 
@@ -30,6 +40,8 @@ func main() {
 		}
 		fmt.Fprintf(w, `{"status": "success", "result": "%s"}`, result)
 	})
+
+	r.Post("/upload", handler.UploadEmails)
 
 	// fmt.Printf("Server starting on :%s", config)
 	http.ListenAndServe(":"+config.HTTPPort, r)
