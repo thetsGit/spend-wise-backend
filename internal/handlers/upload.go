@@ -25,20 +25,20 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 */
 
 	// Check content length first
-	if r.ContentLength > h.Config.MaxUploadSizeKB {
-		h.respondErrorJSON(w, "File too large", nil)
+	if r.ContentLength > h.Config.MaxUploadSizeBytes {
+		RespondErrorJSON(w, "File too large", nil)
 		return
 	}
 
-	// Then, check body size
-	r.Body = http.MaxBytesReader(w, r.Body, h.Config.MaxUploadSizeKB)
+	// Then, check body size as well
+	r.Body = http.MaxBytesReader(w, r.Body, h.Config.MaxUploadSizeBytes)
 
 	json.Marshal(r.Body)
 
 	var emails []models.RawEmail
 	err := json.NewDecoder(r.Body).Decode(&emails)
 	if err != nil {
-		h.respondErrorJSON(w, "Request body too large or invalid JSON", err)
+		RespondErrorJSON(w, "Request body too large or invalid JSON", err)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 		// TODO: should add batch transaction controll to rollback ?
 		email, err := h.DB.InsertEmail(email)
 		if err != nil {
-			h.respondErrorJSON(w, "Failed to save emails", err)
+			RespondErrorJSON(w, "Failed to save emails", err)
 			return
 		}
 		formattedEmails = append(formattedEmails, email)
@@ -81,7 +81,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	rawAIResult, err := ai.CallOpenAI(prompt, h.Config)
 
 	if err != nil {
-		h.respondErrorJSON(w, "AI Failed to process the emails", err)
+		RespondErrorJSON(w, "AI Failed to process the emails", err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 
 	aiResult, err := models.ParseAIResponse(rawAIResult)
 	if err != nil {
-		h.respondErrorJSON(w, "Failed to parse AI results", err)
+		RespondErrorJSON(w, "Failed to parse AI results", err)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 		_, err := h.DB.UpdateEmailStatus(result.EmailID, presets.EmailStatusProcessed)
 
 		if err != nil {
-			h.respondErrorJSON(w, "Failed to update email status", err)
+			RespondErrorJSON(w, "Failed to update email status", err)
 			return
 		}
 
@@ -125,7 +125,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 			_, err := h.DB.InsertSpending(spending)
 
 			if err != nil {
-				h.respondErrorJSON(w, "Failed to save spending record", err)
+				RespondErrorJSON(w, "Failed to save spending record", err)
 				return
 			}
 
@@ -147,7 +147,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 			_, err := h.DB.InsertSaaSDiscovery(saasDiscovery)
 
 			if err != nil {
-				h.respondErrorJSON(w, "Failed to save saas discovery record", err)
+				RespondErrorJSON(w, "Failed to save saas discovery record", err)
 				return
 			}
 
@@ -173,5 +173,5 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 * (9) return the summary data and end the pipeline
 	 */
 
-	h.respondDataJSON(w, "Emails processed", summary)
+	RespondDataJSON(w, "Emails processed", summary)
 }

@@ -22,7 +22,7 @@ type Config struct {
 	OpenAIApiKey  string
 
 	// Input size constraints
-	MaxUploadSizeKB int64
+	MaxUploadSizeBytes int64
 }
 
 func Load() *Config {
@@ -46,7 +46,7 @@ func Load() *Config {
 	if err != nil {
 		maxUploadSizeKB = 5
 	}
-	config.MaxUploadSizeKB = maxUploadSizeKB
+	config.MaxUploadSizeBytes = maxUploadSizeKB * 1024
 
 	// DB connection url
 	config.DBConnStr = fmt.Sprintf(
