@@ -205,7 +205,7 @@ POSTGRES_DB=spend_wise
 DB_HOST=db
 DB_PORT=5432
 HTTP_PORT=8000
-ALLOWED_ORIGINS=http://localhost:5173
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:4173
 
 OPEN_AI_URL=https://api.openai.com/v1/chat/completions
 OPEN_AI_MODEL=gpt-4o-mini
