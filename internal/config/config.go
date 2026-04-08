@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBConnStr  string
-	HTTPPort   string
+	DBHost         string
+	DBPort         string
+	DBUser         string
+	DBPassword     string
+	DBName         string
+	DBConnStr      string
+	HTTPPort       string
+	AllowedOrigins []string
 
 	// Open AI configs for AI service
 	OpenAIUrl     string
@@ -27,12 +29,13 @@ type Config struct {
 
 func Load() *Config {
 	config := &Config{
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		DBUser:     getEnv("POSTGRES_USER", "postgres"),
-		DBPassword: getEnv("POSTGRES_PASSWORD", "postgres"),
-		DBName:     getEnv("POSTGRES_DB", "spend_wise"),
-		HTTPPort:   getEnv("HTTP_PORT", "8000"),
+		DBHost:         getEnv("DB_HOST", "localhost"),
+		DBPort:         getEnv("DB_PORT", "5432"),
+		DBUser:         getEnv("POSTGRES_USER", "postgres"),
+		DBPassword:     getEnv("POSTGRES_PASSWORD", "postgres"),
+		DBName:         getEnv("POSTGRES_DB", "spend_wise"),
+		HTTPPort:       getEnv("HTTP_PORT", "8000"),
+		AllowedOrigins: strings.Split(getEnv("ALLOWED_ORIGINS", "http://localhost:5173"), ","),
 
 		// OpenAI configs for AI service
 		OpenAIUrl:     getEnv("OPEN_AI_URL", "https://api.anthropic.com/v1/messages"),

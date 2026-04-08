@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"github.com/thetsGit/spend-wise-be/internal/config"
 	"github.com/thetsGit/spend-wise-be/internal/database"
@@ -31,6 +32,13 @@ func main() {
 	handler := handlers.CreateHandlers(connection, config)
 
 	r := chi.NewRouter()
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   config.AllowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	}))
 
 	r.Post("/api/emails/upload", handler.UploadEmails)
 	r.Get("/api/spending", handler.GetSpending)
