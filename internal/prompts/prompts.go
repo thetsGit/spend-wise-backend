@@ -37,17 +37,23 @@ General rules:
 - If an email has no SaaS signal, set saas to null
 - If you cannot determine a field, use null
 
+Important:
+- An email can produce BOTH a spending record AND a SaaS signal
+- A SaaS invoice is both a payment and a subscription signal
+- Analyze spending and SaaS independently for each email
+- If an email contains a payment amount (e.g., invoice, receipt, renewal with a price), it MUST have a spending record regardless of whether it is also a SaaS signal
+
 Emails:
 `, categories, signalTypes, billingCycles, confidences)
 
-	for i, e := range emails {
+	for _, e := range emails {
 		prompt += fmt.Sprintf(`
-Email %d:
+Email: %d
 From: %s
 Subject: %s
 Date: %s
 Body: %s
-`, i, e.Sender, e.Subject, e.Date.Format("2006-01-02"), e.Body)
+`, e.ID, e.Sender, e.Subject, e.Date.Format("2006-01-02"), e.Body)
 	}
 
 	prompt += `
