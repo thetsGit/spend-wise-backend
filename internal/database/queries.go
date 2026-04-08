@@ -134,7 +134,7 @@ func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
 			return models.SpendingSummary{}, err
 		}
 		totalSpend += c.TotalSpend
-		totalCount += 1
+		totalCount += c.TotalCount
 		categories = append(categories, c)
 	}
 
@@ -145,7 +145,7 @@ func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
 	}, nil
 }
 
-func (db *DB) GetSaaSDetections(filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
+func (db *DB) GetSaaSDiscoveries(filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
 
 	query := `SELECT id, email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence, created_at
 	 FROM saas_discovery WHERE 1=1`
@@ -173,7 +173,7 @@ func (db *DB) GetSaaSDetections(filter models.SaaSDiscoveryFilter) ([]models.Saa
 	return pgx.CollectRows(rows, pgx.RowToStructByName[models.SaaSDiscovery])
 }
 
-func (db *DB) GetSaaSSummary() (models.SaaSSummary, error) {
+func (db *DB) GetSaaSDiscoverySummary() (models.SaaSSummary, error) {
 	var summary models.SaaSSummary
 	err := db.Pool.QueryRow(
 		context.Background(),

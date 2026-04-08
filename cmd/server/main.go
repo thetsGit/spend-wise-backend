@@ -2,18 +2,21 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
-	"github.com/thetsGit/spend-wise-be/internal/ai"
 	"github.com/thetsGit/spend-wise-be/internal/config"
 	"github.com/thetsGit/spend-wise-be/internal/database"
 	"github.com/thetsGit/spend-wise-be/internal/handlers"
 )
 
 func main() {
-	// Bootstrap things and prepare environment
+	/**
+	 * Bootstrap required things (e.g env vars) and make environment get ready
+	 */
+
 	godotenv.Load()
 
 	config := config.Load()
@@ -21,28 +24,20 @@ func main() {
 	connection, err := database.Connect(config)
 
 	if err != nil {
-
+		log.Fatal("Database connection failed:", err)
 	}
 
+	// Route handler instance
 	handler := handlers.CreateHandlers(connection, config)
 
 	r := chi.NewRouter()
 
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"status": "ok"}`))
-	})
+	r.Post("/api/emails/upload", handler.UploadEmails)
+	r.Get("/api/spending", handler.GetSpending)
+	r.Get("/api/spending/summary", handler.GetSpendingSummary)
+	r.Get("/api/saas", handler.GetSaasDiscoveries)
+	r.Get("/api/saas/summary", handler.GetSaasDiscoverySummary)
 
-	r.Get("/sing", func(w http.ResponseWriter, r *http.Request) {
-		result, err := ai.CallOpenAI("Sing me a song", config)
-		if err != nil {
-			fmt.Fprintf(w, `{"status": "error", "error": "%s"}`, err.Error())
-			return
-		}
-		fmt.Fprintf(w, `{"status": "success", "result": "%s"}`, result)
-	})
-
-	r.Post("/upload", handler.UploadEmails)
-
-	// fmt.Printf("Server starting on :%s", config)
+	fmt.Printf("Server starting on :%s", config)
 	http.ListenAndServe(":"+config.HTTPPort, r)
 }
