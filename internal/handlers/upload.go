@@ -35,8 +35,8 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 
 	json.Marshal(r.Body)
 
-	var emails []models.RawEmail
-	err := json.NewDecoder(r.Body).Decode(&emails)
+	var rawEmails []models.RawEmail
+	err := json.NewDecoder(r.Body).Decode(&rawEmails)
 	if err != nil {
 		RespondErrorJSON(w, "Request body too large or invalid JSON", http.StatusBadRequest, err)
 		return
@@ -46,10 +46,10 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 * (2) Validate the emails
 	 */
 
-	var validEmails []models.RawEmail
-	for _, email := range emails {
+	var validRawEmails []models.RawEmail
+	for _, email := range rawEmails {
 		if email.Validate() {
-			validEmails = append(validEmails, email)
+			validRawEmails = append(validRawEmails, email)
 		}
 	}
 
@@ -57,22 +57,42 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 * (3) Save validated emails to database
 	 */
 
-	var formattedEmails []models.Email
-	for _, email := range validEmails {
+	var savedEmails []models.Email
+	for _, email := range validRawEmails {
 		// TODO: should add batch transaction controll to rollback ?
 		email, err := h.DB.InsertEmail(email)
 		if err != nil {
 			RespondErrorJSON(w, "Failed to save emails", http.StatusInternalServerError, err)
 			return
 		}
-		formattedEmails = append(formattedEmails, email)
+
+		// Duplicated one, skipped
+		isSkipped := email.Sender == "" && email.Recipient == "" && err == nil
+
+		if !isSkipped {
+			savedEmails = append(savedEmails, email)
+		}
+	}
+
+	/**
+	 * (BP - 1) If there's no saved emails, break the pipeline right away
+	 */
+
+	if len(savedEmails) != 0 {
+		/**
+		 * Evaluate the summary
+		 */
+		summary := evaluateSummary(len(rawEmails), len(savedEmails), len(validRawEmails), 0, 0)
+
+		// Return
+		RespondDataJSON(w, "Emails processed", http.StatusOK, summary)
 	}
 
 	/**
 	 * (4) Build AI prompt for spending, saas records retrieval
 	 */
 
-	prompt := prompts.BuildPrompt(formattedEmails)
+	prompt := prompts.BuildPrompt(savedEmails)
 
 	/**
 	 * (5) Trigger AI call with the prepared prompt
@@ -160,18 +180,26 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 * (8) Evaluate summary data
 	 */
 
-	var summary models.UploadSummary
-
-	summary.TotalEmails = len(emails)
-	summary.Inserted = len(validEmails)
-	summary.Skipped = summary.TotalEmails - summary.Inserted
-
-	summary.SpendingFound = savedSpendingCount
-	summary.SaaSFound = savedSaaSDiscoveryCount
+	summary := evaluateSummary(len(rawEmails), len(savedEmails), len(validRawEmails), savedSpendingCount, savedSaaSDiscoveryCount)
 
 	/**
 	 * (9) return the summary data and end the pipeline
 	 */
 
 	RespondDataJSON(w, "Emails processed", http.StatusOK, summary)
+}
+
+func evaluateSummary(rawECount int, insertedECount int, validECount int, spendingCount int, saasCount int) models.UploadSummary {
+	var summary models.UploadSummary
+
+	summary.TotalEmails = rawECount
+	summary.Inserted = insertedECount
+
+	summary.Skipped = summary.TotalEmails - summary.Inserted
+	summary.Invalid = summary.TotalEmails - validECount
+
+	summary.SpendingFound = spendingCount
+	summary.SaaSFound = saasCount
+
+	return summary
 }

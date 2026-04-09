@@ -107,6 +107,7 @@ type UploadSummary struct {
 	TotalEmails   int `json:"total_emails"`
 	Inserted      int `json:"inserted"`
 	Skipped       int `json:"skipped"`
+	Invalid       int `json:"invalid"`
 	SpendingFound int `json:"spending_found"`
 	SaaSFound     int `json:"saas_found"`
 }
