@@ -78,7 +78,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	 * (BP - 1) If there's no saved emails, break the pipeline right away
 	 */
 
-	if len(savedEmails) != 0 {
+	if len(savedEmails) == 0 {
 		/**
 		 * Evaluate the summary
 		 */
@@ -86,6 +86,7 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 
 		// Return
 		RespondDataJSON(w, "Emails processed", http.StatusOK, summary)
+		return
 	}
 
 	/**
