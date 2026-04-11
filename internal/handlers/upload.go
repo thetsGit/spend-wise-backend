@@ -89,16 +89,17 @@ func (h *Handler) UploadEmails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/**
-	 * (4) Build AI prompt for spending, saas records retrieval
+	 * (4) Build AI prompts for spending, saas records retrieval
 	 */
 
-	prompt := prompts.BuildPrompt(savedEmails)
+	systemPrompt := prompts.BuildSystemPrompt()
+	userPrompt := prompts.BuildUserPrompt(savedEmails)
 
 	/**
 	 * (5) Trigger AI call with the prepared prompt
 	 */
 
-	rawAIResult, err := ai.CallOpenAI(prompt, h.Config)
+	rawAIResult, err := ai.CallOpenAI(systemPrompt, userPrompt, h.Config)
 
 	if err != nil {
 		RespondErrorJSON(w, "AI Failed to process the emails", http.StatusInternalServerError, err)

@@ -10,7 +10,7 @@ import (
 	"github.com/thetsGit/spend-wise-be/internal/config"
 )
 
-func CallOpenAI(prompt string, config *config.Config) (string, error) {
+func CallOpenAI(systemPrompt, userPrompt string, config *config.Config) (string, error) {
 
 	/**
 	 * Prepare request body
@@ -19,7 +19,8 @@ func CallOpenAI(prompt string, config *config.Config) (string, error) {
 	reqBody := openAIRequest{
 		Model: config.OpenAIModel,
 		Messages: []openAIMessage{
-			{Role: "user", Content: prompt},
+			{Role: "developer", Content: systemPrompt},
+			{Role: "user", Content: userPrompt},
 		},
 	}
 
