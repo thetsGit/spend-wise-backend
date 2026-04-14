@@ -196,10 +196,8 @@ func evaluateSummary(rawECount int, insertedECount int, validECount int, spendin
 
 	summary.TotalEmails = rawECount
 	summary.Inserted = insertedECount
-
-	summary.Skipped = summary.TotalEmails - summary.Inserted
 	summary.Invalid = summary.TotalEmails - validECount
-
+	summary.Skipped = summary.TotalEmails - summary.Inserted - summary.Invalid
 	summary.SpendingFound = spendingCount
 	summary.SaaSFound = saasCount
 
