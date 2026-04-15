@@ -121,7 +121,8 @@ func (db *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, erro
 }
 
 func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
-	var categories []models.CategorySummary
+	var categories []models.CategorySummary = make([]models.CategorySummary, 0)
+
 	rows, err := db.Pool.Query(
 		context.Background(),
 		`SELECT category, COALESCE(SUM(amount), 0) as total_spend, COUNT(*) as count
