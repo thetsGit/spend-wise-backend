@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"strings"
 )
 
@@ -20,4 +22,10 @@ func Keys(m map[string]string) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+func GenerateOpaqueToken() string {
+	b := make([]byte, 32) // 256 bits of entropy
+	rand.Read(b)
+	return base64.URLEncoding.EncodeToString(b)
 }

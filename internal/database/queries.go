@@ -198,3 +198,45 @@ func (db *DB) GetSaaSDiscoverySummary() (models.SaaSSummary, error) {
 	).Scan(&summary.TotalMonthlySpend, &summary.TotalToolsFound)
 	return summary, err
 }
+
+func (db *DB) UpsertUser(u models.User) (models.User, error) {
+	var result models.User
+	err := db.Pool.QueryRow(
+		context.Background(),
+		`
+		    INSERT INTO users (session_token, expires_at, oauth_id, oauth_email, oauth_name, oauth_picture, oauth_access_token, oauth_refresh_token, oauth_token_expiry, oauth_token_type, oauth_scope)
+		    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		    ON CONFLICT (oauth_id)
+		    DO UPDATE SET
+				session_token = EXCLUDED.session_token,
+				expires_at = EXCLUDED.expires_at,
+				oauth_email = EXCLUDED.oauth_email,
+				oauth_name = EXCLUDED.oauth_name,
+				oauth_picture = EXCLUDED.oauth_picture,
+				oauth_access_token = EXCLUDED.oauth_access_token,
+				oauth_refresh_token = EXCLUDED.oauth_refresh_token,
+				oauth_token_expiry = EXCLUDED.oauth_token_expiry,
+				oauth_token_type = EXCLUDED.oauth_token_type,
+				oauth_scope = EXCLUDED.oauth_scope
+		    RETURNING *
+		`,
+		u.SessionToken, u.ExpiresAt, u.OauthId, u.OauthEmail, u.OauthName, u.OauthPicture, u.OauthAccessToken, u.OauthRefreshToken, u.OauthTokenExpiry, u.OauthTokenType, u.OauthScope,
+	).Scan(
+		&result.ID,
+		&result.SessionToken,
+		&result.ExpiresAt,
+		&result.OauthId,
+		&result.OauthEmail,
+		&result.OauthName,
+		&result.OauthPicture,
+		&result.OauthAccessToken,
+		&result.OauthRefreshToken,
+		&result.OauthTokenExpiry,
+		&result.OauthTokenType,
+		&result.OauthScope,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+	)
+
+	return result, err
+}

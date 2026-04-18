@@ -5,8 +5,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
+// TODO: consider splitting configs
 type Config struct {
 	DBHost         string
 	DBPort         string
@@ -25,6 +27,10 @@ type Config struct {
 
 	// Input size constraints
 	MaxUploadSizeBytes int64
+
+	// Oauth
+	OauthApiUrl        string
+	AuthSessionLifeSec time.Duration
 }
 
 func Load() *Config {
@@ -42,6 +48,10 @@ func Load() *Config {
 		OpenAIModel:   getEnv("OPEN_AI_MODEL", "claude-sonnet-4-6"),
 		OpenAIVersion: getEnv("OPEN_AI_VERSION", "2023-06-01"),
 		OpenAIApiKey:  os.Getenv("OPEN_AI_API_KEY"),
+
+		// Oauth
+		OauthApiUrl:        getEnv("OAUTH_API_URL", "https://www.googleapis.com/oauth2/v2"),
+		AuthSessionLifeSec: 7 * 24 * time.Hour, // 7 days
 	}
 
 	// Input size constraints

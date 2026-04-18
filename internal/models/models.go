@@ -113,6 +113,31 @@ type UploadSummary struct {
 }
 
 /**
+ * User info without any sensitive information
+ */
+
+type PublicUser struct {
+	ID           int       `json:"id"`
+	OauthId      string    `json:"oauth_id"`
+	OauthEmail   string    `json:"oauth_email"`
+	OauthName    string    `json:"oauth_name"`
+	OauthPicture *string   `json:"oauth_picture"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type User struct {
+	PublicUser
+	SessionToken      string    `json:"session_token"`
+	ExpiresAt         time.Time `json:"expires_at"`
+	OauthAccessToken  string    `json:"oauth_access_token"`
+	OauthRefreshToken string    `json:"oauth_refresh_token"`
+	OauthTokenExpiry  time.Time `json:"oauth_token_expiry"`
+	OauthTokenType    string    `json:"oauth_token_type"`
+	OauthScope        string    `json:"oauth_scope"`
+}
+
+/**
  * General structs
  */
 

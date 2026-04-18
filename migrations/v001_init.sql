@@ -1,11 +1,17 @@
 -- Create users table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    google_id VARCHAR(255) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    google_access_token TEXT,
-    google_refresh_token TEXT,
-    google_token_expiry TIMESTAMPTZ,
+    session_token VARCHAR(255) UNIQUE,
+    expires_at TIMESTAMPTZ,
+    oauth_id VARCHAR(255) UNIQUE NOT NULL,
+    oauth_email VARCHAR(255) UNIQUE NOT NULL,
+    oauth_name VARCHAR(255) UNIQUE NOT NULL,
+    oauth_picture TEXT NOT NULL,
+    oauth_access_token TEXT,
+    oauth_refresh_token TEXT,
+    oauth_token_expiry TIMESTAMPTZ,
+    oauth_token_type VARCHAR(255),
+    oauth_scope TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

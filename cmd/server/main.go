@@ -40,6 +40,14 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	/**
+	 * Auth endpoints
+	 */
+	r.Post("/api/oauth/verify", handler.VerifyOauth)
+
+	/**
+	 * Business endpoints
+	 */
 	r.Post("/api/emails/upload", handler.UploadEmails)
 	r.Get("/api/spending", handler.GetSpending)
 	r.Get("/api/spending/summary", handler.GetSpendingSummary)
