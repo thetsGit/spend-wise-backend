@@ -80,3 +80,9 @@ CREATE INDEX saas_discovery_user_id ON saas_discovery(user_id);
 CREATE INDEX saas_discovery_email_id ON saas_discovery (email_id);
 CREATE INDEX saas_discovery_product_name ON saas_discovery(product_name);
 CREATE INDEX saas_discovery_signal_type ON saas_discovery(signal_type);
+
+-- Adding indexes - users relation
+
+CREATE INDEX users_session_token ON users(session_token);
+CREATE INDEX users_oauth_id ON users (oauth_id);
+CREATE INDEX users_oauth_email ON users(oauth_email);
