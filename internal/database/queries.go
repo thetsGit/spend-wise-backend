@@ -240,3 +240,66 @@ func (db *DB) UpsertUser(u models.User) (models.User, error) {
 
 	return result, err
 }
+
+func (db *DB) GetUserBySessionToken(token string) (models.User, error) {
+	return db.getUser("session_token", token)
+}
+
+func (db *DB) getUser(field string, value any) (models.User, error) {
+	var result models.User
+	err := db.Pool.QueryRow(
+		context.Background(),
+		fmt.Sprintf("SELECT * FROM users WHERE %s = $1", field),
+		value,
+	).Scan(
+		&result.ID,
+		&result.SessionToken,
+		&result.ExpiresAt,
+		&result.OauthId,
+		&result.OauthEmail,
+		&result.OauthName,
+		&result.OauthPicture,
+		&result.OauthAccessToken,
+		&result.OauthRefreshToken,
+		&result.OauthTokenExpiry,
+		&result.OauthTokenType,
+		&result.OauthScope,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+	)
+
+	return result, err
+}
+
+func (db *DB) DeleteUserByID(id int) error {
+	return db.deleteUser("id", id)
+}
+
+func (db *DB) deleteUser(field string, value any) error {
+	result, err := db.Pool.Exec(
+		context.Background(),
+		fmt.Sprintf("DELETE FROM users WHERE %s = $1", field),
+		value,
+	)
+	if err != nil {
+		return err
+	}
+
+	// Check if any row was actually deleted, otherwise return error to avoid confusion
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}
+
+func (db *DB) ClearUserSession(token string) error {
+	_, err := db.Pool.Exec(
+		context.Background(),
+		`UPDATE users
+         SET session_token = NULL, expires_at = NULL
+         WHERE session_token = $1`,
+		token,
+	)
+	return err
+}

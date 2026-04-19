@@ -90,8 +90,45 @@ func (h *Handler) VerifyOauth(w http.ResponseWriter, r *http.Request) {
 		User:         savedUser.PublicUser,
 		SessionToken: savedUser.SessionToken,
 	})
-
 }
+
+func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
+	// Potentially fetched user during auth middleware check
+	user := GetUserFromContext(r.Context())
+
+	if user == nil {
+		RespondErrorJSON(w, "Failed to get user information", http.StatusBadRequest, nil)
+		return
+	}
+
+	RespondDataJSON(w, "Success", http.StatusOK, user.PublicUser)
+}
+
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromContext(r.Context())
+
+	if user == nil {
+		RespondErrorJSON(w, "User not found", http.StatusBadRequest, nil)
+		return
+	}
+
+	/**
+	 * Revoke token
+	 */
+
+	err := h.DB.ClearUserSession(user.SessionToken)
+
+	if err != nil {
+		RespondErrorJSON(w, "Failed to log out", http.StatusBadRequest, err)
+		return
+	}
+
+	RespondDataJSON(w, "Success", http.StatusNoContent, nil)
+}
+
+/**
+ * Upstream services
+ */
 
 func (h *Handler) fetchGoogleUserInfo(accessToken string) (*OauthUserInfo, error) {
 	req, _ := http.NewRequest("GET", h.Config.OauthApiUrl+"/userinfo", nil)

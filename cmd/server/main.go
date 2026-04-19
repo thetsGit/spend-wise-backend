@@ -33,26 +33,45 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   config.AllowedOrigins,
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type"},
-		AllowCredentials: true,
-	}))
-
 	/**
-	 * Auth endpoints
+	 * API services
 	 */
-	r.Post("/api/oauth/verify", handler.VerifyOauth)
 
-	/**
-	 * Business endpoints
-	 */
-	r.Post("/api/emails/upload", handler.UploadEmails)
-	r.Get("/api/spending", handler.GetSpending)
-	r.Get("/api/spending/summary", handler.GetSpendingSummary)
-	r.Get("/api/saas", handler.GetSaasDiscoveries)
-	r.Get("/api/saas/summary", handler.GetSaasDiscoverySummary)
+	r.Route("/api", func(r chi.Router) {
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   config.AllowedOrigins,
+			AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Content-Type", "Authorization"},
+			AllowCredentials: true,
+		}))
+
+		/**
+		 * Public routes
+		 */
+
+		r.Post("/oauth/verify", handler.VerifyOauth)
+
+		/**
+		 * Protected routes
+		 */
+
+		r.Group(func(r chi.Router) {
+			r.Use(handler.AuthMiddleware)
+
+			r.Post("/emails/upload", handler.UploadEmails)
+
+			r.Get("/spending", handler.GetSpending)
+			r.Get("/spending/summary", handler.GetSpendingSummary)
+
+			r.Get("/saas", handler.GetSaasDiscoveries)
+			r.Get("/saas/summary", handler.GetSaasDiscoverySummary)
+
+			r.Get("/users/me", handler.GetMe)
+
+			r.Post("/auth/logout", handler.Logout)
+		})
+
+	})
 
 	/**
 	 * Fallback / error routes
@@ -65,6 +84,10 @@ func main() {
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
 		handlers.RespondErrorJSON(w, "Method not allowed", http.StatusMethodNotAllowed, nil)
 	})
+
+	/**
+	 * Start the server
+	 */
 
 	fmt.Printf("Server starting on :%s", config)
 	http.ListenAndServe(":"+config.HTTPPort, r)
