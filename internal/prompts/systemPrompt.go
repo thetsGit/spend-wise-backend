@@ -1,29 +1,38 @@
 package prompts
 
+// TODO: saas are extracted even though some are just marketing emails (it seems AI just check the company name and match it)
 import (
 	"fmt"
 	"strings"
 
-	"github.com/thetsGit/spend-wise-be/internal/models"
-	"github.com/thetsGit/spend-wise-be/internal/presets"
+	"github.com/thetsGit/spend-wise-be/internal/constants"
 	"github.com/thetsGit/spend-wise-be/internal/utils"
 )
 
-func BuildPrompt(emails []models.Email) string {
-	categories := strings.Join(utils.Keys(presets.SpendingCategories), ", ")
-	signalTypes := strings.Join(utils.Keys(presets.SaaSSignalTypes), ", ")
-	billingCycles := strings.Join(utils.Keys(presets.SaaSBillingCycles), ", ")
-	confidences := strings.Join(utils.Keys(presets.ConfidenceScores), ", ")
+func BuildSystemPrompt() string {
+	categories := strings.Join(utils.Keys(constants.SpendingCategories), ", ")
+	signalTypes := strings.Join(utils.Keys(constants.SaaSSignalTypes), ", ")
+	billingCycles := strings.Join(utils.Keys(constants.SaaSBillingCycles), ", ")
+	confidences := strings.Join(utils.Keys(constants.ConfidenceScores), ", ")
 
-	prompt := fmt.Sprintf(`You are an email analyzer that performs two tasks:
+	return fmt.Sprintf(`
+
+Identity: You are an email analyzer that performs two tasks:
 1. Extract financial transactions (spending)
 2. Detect SaaS/software product signals
 
+"merchant": "string",
+"amount": 0.00,
+"currency": "USD",
+"category": "string",
+"date": "2025-07-01T00:00:00Z",
+"confidence": "high"
+
 Rules for spending:
-- category must be one of: %s
 - amount should be a number without currency symbols
-- date should be in ISO 8601 format. Extract the transaction date from email content, not the email date
 - currency should be a 3-letter code. Default to USD if unclear
+- category must be one of: %s
+- date should be in ISO 8601 format. Extract the transaction date from email content, not the email date
 
 Rules for SaaS:
 - signal_type must be one of: %s
@@ -43,21 +52,9 @@ Important:
 - Analyze spending and SaaS independently for each email
 - If an email contains a payment amount (e.g., invoice, receipt, renewal with a price), it MUST have a spending record regardless of whether it is also a SaaS signal
 
-Emails:
-`, categories, signalTypes, billingCycles, confidences)
-
-	for _, e := range emails {
-		prompt += fmt.Sprintf(`
-Email: %d
-From: %s
-Subject: %s
-Date: %s
-Body: %s
-`, e.ID, e.Sender, e.Subject, e.Date.Format("2006-01-02"), e.Body)
-	}
-
-	prompt += `
 Respond with ONLY a valid JSON array. No markdown, no explanation.
+
+Example output format:
 [
   {
     "email_id": 0,
@@ -78,7 +75,5 @@ Respond with ONLY a valid JSON array. No markdown, no explanation.
       "confidence": "high"
     }
   }
-]`
-
-	return prompt
+]`, categories, signalTypes, billingCycles, confidences)
 }

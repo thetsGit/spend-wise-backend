@@ -8,18 +8,20 @@ import (
 	"net/http"
 
 	"github.com/thetsGit/spend-wise-be/internal/config"
+	"github.com/thetsGit/spend-wise-be/internal/constants"
 )
 
-func CallOpenAI(prompt string, config *config.Config) (string, error) {
+func CallOpenAI(systemPrompt, userPrompt string, config *config.Config) (string, error) {
 
 	/**
 	 * Prepare request body
 	 */
 
 	reqBody := openAIRequest{
-		Model: config.OpenAIModel,
+		Model: constants.OpenAIModel,
 		Messages: []openAIMessage{
-			{Role: "user", Content: prompt},
+			{Role: "developer", Content: systemPrompt},
+			{Role: "user", Content: userPrompt},
 		},
 	}
 
@@ -33,7 +35,7 @@ func CallOpenAI(prompt string, config *config.Config) (string, error) {
 	 * Prepare HTTP request to ai provider
 	 */
 
-	req, reqErr := http.NewRequest("POST", config.OpenAIUrl, bytes.NewBuffer(jsonReqData))
+	req, reqErr := http.NewRequest("POST", constants.OpenAIUrl, bytes.NewBuffer(jsonReqData))
 	if reqErr != nil {
 		return "", fmt.Errorf("failed to create request: %w", reqErr)
 	}

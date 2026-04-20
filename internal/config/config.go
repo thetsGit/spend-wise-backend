@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// TODO: consider splitting configs
 type Config struct {
 	DBHost         string
 	DBPort         string
@@ -18,13 +19,14 @@ type Config struct {
 	AllowedOrigins []string
 
 	// Open AI configs for AI service
-	OpenAIUrl     string
-	OpenAIModel   string
-	OpenAIVersion string
-	OpenAIApiKey  string
+	OpenAIApiKey string
 
 	// Input size constraints
 	MaxUploadSizeBytes int64
+
+	// Oauth
+	OauthClientId     string
+	OauthClientSecret string
 }
 
 func Load() *Config {
@@ -38,10 +40,11 @@ func Load() *Config {
 		AllowedOrigins: strings.Split(getEnv("ALLOWED_ORIGINS", "http://localhost:5173"), ","),
 
 		// OpenAI configs for AI service
-		OpenAIUrl:     getEnv("OPEN_AI_URL", "https://api.anthropic.com/v1/messages"),
-		OpenAIModel:   getEnv("OPEN_AI_MODEL", "claude-sonnet-4-6"),
-		OpenAIVersion: getEnv("OPEN_AI_VERSION", "2023-06-01"),
-		OpenAIApiKey:  os.Getenv("OPEN_AI_API_KEY"),
+		OpenAIApiKey: os.Getenv("OPEN_AI_API_KEY"),
+
+		// Oauth
+		OauthClientId:     os.Getenv("OAUTH_CLIENT_ID"),
+		OauthClientSecret: os.Getenv("OAUTH_CLIENT_SECRET"),
 	}
 
 	// Input size constraints

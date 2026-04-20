@@ -12,7 +12,8 @@ func (h *Handler) GetSaasDiscoveries(w http.ResponseWriter, r *http.Request) {
 		SignalType:  r.URL.Query().Get("signal_type"),
 	}
 
-	results, err := h.DB.GetSaaSDiscoveries(filter)
+	user := GetUserFromContext(r.Context())
+	results, err := h.DB.GetSaaSDiscoveries(user.ID, filter)
 	if err != nil {
 		RespondErrorJSON(w, "Failed to fetch saas discovery list", http.StatusInternalServerError, err)
 		return
@@ -22,7 +23,8 @@ func (h *Handler) GetSaasDiscoveries(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetSaasDiscoverySummary(w http.ResponseWriter, r *http.Request) {
-	results, err := h.DB.GetSaaSDiscoverySummary()
+	user := GetUserFromContext(r.Context())
+	results, err := h.DB.GetSaaSDiscoverySummary(user.ID)
 	if err != nil {
 		RespondErrorJSON(w, "Failed to fetch saas discovery summary", http.StatusInternalServerError, err)
 		return

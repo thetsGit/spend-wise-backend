@@ -3,26 +3,27 @@ package models
 import "time"
 
 /**
- * Business oriented entities (structs)
+ * Business oriented structs
  */
 
 type RawEmail struct {
-	Sender    string `json:"from"`
-	Recipient string `json:"to"`
-	Subject   string `json:"subject"`
-	Body      string `json:"body"`
-	Date      string `json:"date"`
+	Sender    string    `json:"from"`
+	Recipient string    `json:"to"`
+	Subject   string    `json:"subject"`
+	Body      string    `json:"body"`
+	Date      time.Time `json:"date"`
 }
 
 type Email struct {
-	ID        int
-	Sender    string
-	Recipient string
-	Subject   string
-	Body      string
-	Date      time.Time
-	Status    string
-	CreatedAt time.Time
+	ID        int       `db:"id" json:"id"`
+	Sender    string    `db:"sender" json:"sender"`
+	Recipient string    `db:"recipient" json:"recipient"`
+	Subject   string    `db:"subject" json:"subject"`
+	Body      string    `db:"body" json:"body"`
+	Date      time.Time `db:"date" json:"date"`
+	Status    string    `db:"status" json:"status"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UserId    int       `db:"user_id" json:"user_id"`
 }
 
 type AISpendingResult struct {
@@ -45,6 +46,7 @@ type Spending struct {
 	AIConfidence    *string    `db:"ai_confidence" json:"ai_confidence"`
 	Confidence      string     `db:"confidence" json:"confidence"`
 	CreatedAt       time.Time  `db:"created_at" json:"created_at"`
+	UserId          int        `db:"user_id" json:"user_id"`
 }
 
 type SpendingFilter struct {
@@ -85,6 +87,7 @@ type SaaSDiscovery struct {
 	Confidence    string    `db:"confidence" json:"confidence"`
 	CreatedAt     time.Time `db:"created_at" json:"created_at"`
 	EmailID       int       `db:"email_id" json:"email_id"`
+	UserId        int       `db:"user_id" json:"user_id"`
 }
 
 type SaaSDiscoveryFilter struct {
@@ -107,8 +110,34 @@ type UploadSummary struct {
 	TotalEmails   int `json:"total_emails"`
 	Inserted      int `json:"inserted"`
 	Skipped       int `json:"skipped"`
+	Invalid       int `json:"invalid"`
 	SpendingFound int `json:"spending_found"`
 	SaaSFound     int `json:"saas_found"`
+}
+
+/**
+ * User info without any sensitive information
+ */
+
+type PublicUser struct {
+	ID           int       `json:"id"`
+	OauthId      string    `json:"oauth_id"`
+	OauthEmail   string    `json:"oauth_email"`
+	OauthName    string    `json:"oauth_name"`
+	OauthPicture *string   `json:"oauth_picture"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type User struct {
+	PublicUser
+	SessionToken      string    `json:"session_token"`
+	ExpiresAt         time.Time `json:"expires_at"`
+	OauthAccessToken  string    `json:"oauth_access_token"`
+	OauthRefreshToken string    `json:"oauth_refresh_token"`
+	OauthTokenExpiry  time.Time `json:"oauth_token_expiry"`
+	OauthTokenType    string    `json:"oauth_token_type"`
+	OauthScope        string    `json:"oauth_scope"`
 }
 
 /**
