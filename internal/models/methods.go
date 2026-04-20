@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/thetsGit/spend-wise-be/internal/presets"
+	"github.com/thetsGit/spend-wise-be/internal/constants"
 )
 
 func (email *RawEmail) Validate() bool {
-	return email.Sender != "" && email.Recipient != "" && email.Subject != "" && email.Date != ""
+	return email.Sender != "" && email.Recipient != "" && email.Subject != "" && !email.Date.IsZero()
 }
 
 func (s *Spending) Validate() bool {
@@ -45,14 +45,14 @@ func (spending *AISpendingResult) CalculateScore() string {
 	}
 
 	if score == MAX_SCORE {
-		return presets.ConfidenceHigh
+		return constants.ConfidenceHigh
 	}
 
 	if score == 0 {
-		return presets.ConfidenceLow
+		return constants.ConfidenceLow
 	}
 
-	return presets.ConfidenceMedium
+	return constants.ConfidenceMedium
 }
 
 func (saas *AISaaSDiscoveryResult) CalculateScore() string {
@@ -80,14 +80,14 @@ func (saas *AISaaSDiscoveryResult) CalculateScore() string {
 	}
 
 	if score == MAX_SCORE {
-		return presets.ConfidenceHigh
+		return constants.ConfidenceHigh
 	}
 
 	if score == 0 {
-		return presets.ConfidenceLow
+		return constants.ConfidenceLow
 	}
 
-	return presets.ConfidenceMedium
+	return constants.ConfidenceMedium
 }
 
 // Parse raw AI response body, removing trailing prefix/postfix if exists

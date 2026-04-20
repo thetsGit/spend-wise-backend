@@ -1,18 +1,19 @@
 package prompts
 
+// TODO: saas are extracted even though some are just marketing emails (it seems AI just check the company name and match it)
 import (
 	"fmt"
 	"strings"
 
-	"github.com/thetsGit/spend-wise-be/internal/presets"
+	"github.com/thetsGit/spend-wise-be/internal/constants"
 	"github.com/thetsGit/spend-wise-be/internal/utils"
 )
 
 func BuildSystemPrompt() string {
-	categories := strings.Join(utils.Keys(presets.SpendingCategories), ", ")
-	signalTypes := strings.Join(utils.Keys(presets.SaaSSignalTypes), ", ")
-	billingCycles := strings.Join(utils.Keys(presets.SaaSBillingCycles), ", ")
-	confidences := strings.Join(utils.Keys(presets.ConfidenceScores), ", ")
+	categories := strings.Join(utils.Keys(constants.SpendingCategories), ", ")
+	signalTypes := strings.Join(utils.Keys(constants.SaaSSignalTypes), ", ")
+	billingCycles := strings.Join(utils.Keys(constants.SaaSBillingCycles), ", ")
+	confidences := strings.Join(utils.Keys(constants.ConfidenceScores), ", ")
 
 	return fmt.Sprintf(`
 

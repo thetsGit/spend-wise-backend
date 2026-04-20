@@ -13,7 +13,8 @@ func (h *Handler) GetSpending(w http.ResponseWriter, r *http.Request) {
 		EndDate:   r.URL.Query().Get("end_date"),
 	}
 
-	results, err := h.DB.GetSpending(filter)
+	user := GetUserFromContext(r.Context())
+	results, err := h.DB.GetSpending(user.ID, filter)
 	if err != nil {
 		RespondErrorJSON(w, "Failed to fetch spending list", http.StatusInternalServerError, err)
 		return
@@ -23,7 +24,8 @@ func (h *Handler) GetSpending(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetSpendingSummary(w http.ResponseWriter, r *http.Request) {
-	summary, err := h.DB.GetSpendingSummary()
+	user := GetUserFromContext(r.Context())
+	summary, err := h.DB.GetSpendingSummary(user.ID)
 	if err != nil {
 		RespondErrorJSON(w, "Failed to fetch spending summary", http.StatusInternalServerError, err)
 		return

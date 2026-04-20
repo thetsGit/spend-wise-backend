@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/thetsGit/spend-wise-be/internal/models"
@@ -14,7 +15,7 @@ func (db *DB) InsertEmail(userId int, e models.RawEmail) (models.Email, error) {
 		context.Background(),
 		`INSERT INTO email (sender, recipient, subject, body, date, user_id)
 		 VALUES ($1, $2, $3, $4, $5, $6)
-		 ON CONFLICT (sender, recipient, subject, date) DO NOTHING RETURNING *`,
+		 ON CONFLICT (sender, recipient, subject, date, user_id) DO NOTHING RETURNING *`,
 		e.Sender, e.Recipient, e.Subject, e.Body, e.Date, userId,
 	).Scan(&result.ID,
 		&result.Sender,
@@ -93,10 +94,10 @@ func (db *DB) InsertSaaSDiscovery(userId int, s models.SaaSDiscovery) (models.Sa
 	return result, err
 }
 
-func (db *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, error) {
-	query := `SELECT * FROM spending WHERE 1=1`
-	args := []any{}
-	argIdx := 1
+func (db *DB) GetSpending(userId int, filter models.SpendingFilter) ([]models.Spending, error) {
+	query := `SELECT * FROM spending WHERE user_id = $1`
+	args := []any{userId}
+	argIdx := 2
 
 	if filter.Category != "" {
 		query += fmt.Sprintf(" AND category = $%d", argIdx)
@@ -123,15 +124,17 @@ func (db *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, erro
 	return pgx.CollectRows(rows, pgx.RowToStructByName[models.Spending])
 }
 
-func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
+func (db *DB) GetSpendingSummary(userId int) (models.SpendingSummary, error) {
 	var categories []models.CategorySummary = make([]models.CategorySummary, 0)
 
 	rows, err := db.Pool.Query(
 		context.Background(),
 		`SELECT category, COALESCE(SUM(amount), 0) as total_spend, COUNT(*) as count
 		 FROM spending
+		 WHERE user_id = $1
 		 GROUP BY category
 		 ORDER BY total_spend DESC`,
+		userId,
 	)
 	if err != nil {
 		return models.SpendingSummary{}, err
@@ -157,12 +160,12 @@ func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
 	}, nil
 }
 
-func (db *DB) GetSaaSDiscoveries(filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
+func (db *DB) GetSaaSDiscoveries(userId int, filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
 
-	query := `SELECT * FROM saas_discovery WHERE 1=1`
+	query := `SELECT * FROM saas_discovery WHERE user_id = $1`
 
-	args := []any{}
-	argIdx := 1
+	args := []any{userId}
+	argIdx := 2
 
 	if filter.ProductName != "" {
 		query += fmt.Sprintf(" AND product_name = $%d", argIdx)
@@ -184,7 +187,7 @@ func (db *DB) GetSaaSDiscoveries(filter models.SaaSDiscoveryFilter) ([]models.Sa
 	return pgx.CollectRows(rows, pgx.RowToStructByName[models.SaaSDiscovery])
 }
 
-func (db *DB) GetSaaSDiscoverySummary() (models.SaaSSummary, error) {
+func (db *DB) GetSaaSDiscoverySummary(userId int) (models.SaaSSummary, error) {
 	var summary models.SaaSSummary
 	err := db.Pool.QueryRow(
 		context.Background(),
@@ -196,7 +199,7 @@ func (db *DB) GetSaaSDiscoverySummary() (models.SaaSSummary, error) {
 				END
 			), 0) as total_monthly_spend,
 			COUNT(DISTINCT product_name) as total_tools_found
-		 FROM saas_discovery`,
+		 FROM saas_discovery WHERE user_id = $1`, userId,
 	).Scan(&summary.TotalMonthlySpend, &summary.TotalToolsFound)
 	return summary, err
 }
@@ -302,6 +305,16 @@ func (db *DB) ClearUserSession(token string) error {
          SET session_token = NULL, expires_at = NULL
          WHERE session_token = $1`,
 		token,
+	)
+	return err
+}
+
+func (db *DB) UpdateAccessToken(userId int, token string, expiresIn time.Time) error {
+	_, err := db.Pool.Exec(
+		context.Background(),
+		`UPDATE users
+         SET oauth_access_token = $1, oauth_token_expiry = $2 WHERE id = $3`,
+		token, expiresIn, userId,
 	)
 	return err
 }

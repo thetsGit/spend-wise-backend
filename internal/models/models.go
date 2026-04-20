@@ -7,11 +7,11 @@ import "time"
  */
 
 type RawEmail struct {
-	Sender    string `json:"from"`
-	Recipient string `json:"to"`
-	Subject   string `json:"subject"`
-	Body      string `json:"body"`
-	Date      string `json:"date"`
+	Sender    string    `json:"from"`
+	Recipient string    `json:"to"`
+	Subject   string    `json:"subject"`
+	Body      string    `json:"body"`
+	Date      time.Time `json:"date"`
 }
 
 type Email struct {

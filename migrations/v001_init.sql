@@ -27,7 +27,7 @@ CREATE TABLE email (
 	status VARCHAR(20) NOT NULL DEFAULT 'pending',
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-	UNIQUE (sender, recipient, subject, date)
+	UNIQUE (sender, recipient, subject, date, user_id)
 );
 
 -- Create spending table

@@ -1,4 +1,6 @@
-package presets
+package constants
+
+import "github.com/thetsGit/spend-wise-be/internal/utils"
 
 var SpendingCategories = map[string]string{
 	"food_delivery": "Food ordering and delivery (GrabFood, foodpanda, Uber Eats)",
@@ -47,4 +49,24 @@ var EmailStatuses = map[string]string{
 	EmailStatusPending:   "Email uploaded but not yet processed by AI",
 	EmailStatusProcessed: "AI has analyzed the email and results are stored",
 	EmailStatusFailed:    "AI processing failed for this email",
+}
+
+func NormalizeSpendingCategory(raw string) string {
+	return utils.Normalize(raw, SpendingCategories, "other")
+}
+
+func NormalizeSaaSSignalType(raw string) string {
+	return utils.Normalize(raw, SaaSSignalTypes, "other")
+}
+
+func NormalizeBillingCycle(raw string) string {
+	return utils.Normalize(raw, SaaSBillingCycles, "unknown")
+}
+
+func NormalizeConfidenceScore(raw string) string {
+	return utils.Normalize(raw, ConfidenceScores, "low")
+}
+
+func NormalizeEmailStatus(raw string) string {
+	return utils.Normalize(raw, EmailStatuses, "failed")
 }

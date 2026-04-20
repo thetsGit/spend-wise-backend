@@ -13,6 +13,7 @@ type contextKey string
 
 const userContextKey contextKey = "user"
 
+// Potentially fetched user during auth middleware check
 func GetUserFromContext(ctx context.Context) *models.User {
 	user, _ := ctx.Value(userContextKey).(*models.User)
 	return user

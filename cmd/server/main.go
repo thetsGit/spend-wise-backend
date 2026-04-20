@@ -59,6 +59,7 @@ func main() {
 			r.Use(handler.AuthMiddleware)
 
 			r.Post("/emails/upload", handler.UploadEmails)
+			r.Post("/gmails/sync", handler.SyncGmails)
 
 			r.Get("/spending", handler.GetSpending)
 			r.Get("/spending/summary", handler.GetSpendingSummary)

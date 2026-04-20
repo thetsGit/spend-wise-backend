@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/thetsGit/spend-wise-be/internal/constants"
 	"github.com/thetsGit/spend-wise-be/internal/models"
 	"github.com/thetsGit/spend-wise-be/internal/utils"
 )
@@ -44,7 +44,8 @@ func (h *Handler) VerifyOauth(w http.ResponseWriter, r *http.Request) {
 
 	/**
 	 * Fetch user info from google
-	 */
+		* TODO: consider returning statusCode more explicitly (401, 503, etc)
+	*/
 	userInfo, err := h.fetchGoogleUserInfo(req.AccessToken)
 	if err != nil {
 		RespondErrorJSON(w, "Failed to fetch user info from Google", http.StatusUnauthorized, err)
@@ -55,7 +56,7 @@ func (h *Handler) VerifyOauth(w http.ResponseWriter, r *http.Request) {
 	 * Issue an Opaque token
 	 */
 	sessionToken := utils.GenerateOpaqueToken()
-	expiresAt := time.Now().UTC().Add(h.Config.AuthSessionLifeSec)
+	expiresAt := time.Now().UTC().Add(constants.AuthSessionLifeSec)
 
 	userToSave := models.User{
 		SessionToken: sessionToken,
@@ -74,8 +75,6 @@ func (h *Handler) VerifyOauth(w http.ResponseWriter, r *http.Request) {
 		OauthScope:        req.Scope,
 	}
 
-	fmt.Println(sessionToken, expiresAt, userInfo, userToSave)
-
 	/**
 	 * Save or update user info to 'users' DB
 	 */
@@ -93,7 +92,6 @@ func (h *Handler) VerifyOauth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
-	// Potentially fetched user during auth middleware check
 	user := GetUserFromContext(r.Context())
 
 	if user == nil {
@@ -127,11 +125,11 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
- * Upstream services
+ * Upstream services - google oauth
  */
 
 func (h *Handler) fetchGoogleUserInfo(accessToken string) (*OauthUserInfo, error) {
-	req, _ := http.NewRequest("GET", h.Config.OauthApiUrl+"/userinfo", nil)
+	req, _ := http.NewRequest("GET", constants.GoogleUserInfoURL, nil)
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	resp, err := http.DefaultClient.Do(req)

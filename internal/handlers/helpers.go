@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/thetsGit/spend-wise-be/internal/ai"
+	"github.com/thetsGit/spend-wise-be/internal/constants"
 	"github.com/thetsGit/spend-wise-be/internal/models"
-	"github.com/thetsGit/spend-wise-be/internal/presets"
 	"github.com/thetsGit/spend-wise-be/internal/prompts"
 )
 
@@ -123,7 +123,7 @@ func AnalyzeEmails(h *Handler, user models.User, rawEmails []models.RawEmail) (m
 	var savedSaaSDiscoveryCount int
 
 	for _, result := range aiResult {
-		_, err := h.DB.UpdateEmailStatus(result.EmailID, presets.EmailStatusProcessed)
+		_, err := h.DB.UpdateEmailStatus(result.EmailID, constants.EmailStatusProcessed)
 
 		if err != nil {
 			return "Failed to update email status", http.StatusInternalServerError, nil, err
@@ -135,7 +135,7 @@ func AnalyzeEmails(h *Handler, user models.User, rawEmails []models.RawEmail) (m
 				Merchant:        result.Spending.Merchant,
 				Amount:          result.Spending.Amount,
 				Currency:        result.Spending.Currency,
-				Category:        presets.NormalizeSpendingCategory(result.Spending.Category),
+				Category:        constants.NormalizeSpendingCategory(result.Spending.Category),
 				TransactionDate: result.Spending.TransactionDate,
 				AIConfidence:    result.Spending.Confidence,
 				Confidence:      result.Spending.CalculateScore(),
@@ -154,8 +154,8 @@ func AnalyzeEmails(h *Handler, user models.User, rawEmails []models.RawEmail) (m
 			saasDiscovery := models.SaaSDiscovery{
 				EmailID:       result.EmailID,
 				ProductName:   result.SaaS.ProductName,
-				SignalType:    presets.NormalizeSaaSSignalType(result.SaaS.SignalType),
-				BillingCycle:  presets.NormalizeBillingCycle(result.SaaS.BillingCycle),
+				SignalType:    constants.NormalizeSaaSSignalType(result.SaaS.SignalType),
+				BillingCycle:  constants.NormalizeBillingCycle(result.SaaS.BillingCycle),
 				EstimatedCost: result.SaaS.EstimatedCost,
 				Currency:      result.SaaS.Currency,
 				AIConfidence:  result.SaaS.Confidence,
