@@ -3,7 +3,7 @@ package models
 import "time"
 
 /**
- * Business oriented entities (structs)
+ * Business oriented structs
  */
 
 type RawEmail struct {
@@ -15,14 +15,15 @@ type RawEmail struct {
 }
 
 type Email struct {
-	ID        int
-	Sender    string
-	Recipient string
-	Subject   string
-	Body      string
-	Date      time.Time
-	Status    string
-	CreatedAt time.Time
+	ID        int       `db:"id" json:"id"`
+	Sender    string    `db:"sender" json:"sender"`
+	Recipient string    `db:"recipient" json:"recipient"`
+	Subject   string    `db:"subject" json:"subject"`
+	Body      string    `db:"body" json:"body"`
+	Date      time.Time `db:"date" json:"date"`
+	Status    string    `db:"status" json:"status"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UserId    int       `db:"user_id" json:"user_id"`
 }
 
 type AISpendingResult struct {
@@ -45,6 +46,7 @@ type Spending struct {
 	AIConfidence    *string    `db:"ai_confidence" json:"ai_confidence"`
 	Confidence      string     `db:"confidence" json:"confidence"`
 	CreatedAt       time.Time  `db:"created_at" json:"created_at"`
+	UserId          int        `db:"user_id" json:"user_id"`
 }
 
 type SpendingFilter struct {
@@ -85,6 +87,7 @@ type SaaSDiscovery struct {
 	Confidence    string    `db:"confidence" json:"confidence"`
 	CreatedAt     time.Time `db:"created_at" json:"created_at"`
 	EmailID       int       `db:"email_id" json:"email_id"`
+	UserId        int       `db:"user_id" json:"user_id"`
 }
 
 type SaaSDiscoveryFilter struct {

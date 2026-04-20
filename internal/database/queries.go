@@ -8,14 +8,14 @@ import (
 	"github.com/thetsGit/spend-wise-be/internal/models"
 )
 
-func (db *DB) InsertEmail(e models.RawEmail) (models.Email, error) {
+func (db *DB) InsertEmail(userId int, e models.RawEmail) (models.Email, error) {
 	var result models.Email
 	err := db.Pool.QueryRow(
 		context.Background(),
-		`INSERT INTO email (sender, recipient, subject, body, date)
-		 VALUES ($1, $2, $3, $4, $5)
+		`INSERT INTO email (sender, recipient, subject, body, date, user_id)
+		 VALUES ($1, $2, $3, $4, $5, $6)
 		 ON CONFLICT (sender, recipient, subject, date) DO NOTHING RETURNING *`,
-		e.Sender, e.Recipient, e.Subject, e.Body, e.Date,
+		e.Sender, e.Recipient, e.Subject, e.Body, e.Date, userId,
 	).Scan(&result.ID,
 		&result.Sender,
 		&result.Recipient,
@@ -23,7 +23,8 @@ func (db *DB) InsertEmail(e models.RawEmail) (models.Email, error) {
 		&result.Body,
 		&result.Date,
 		&result.Status,
-		&result.CreatedAt)
+		&result.CreatedAt,
+		&result.UserId)
 
 	if err != nil {
 		if err.Error() == "no rows in result set" {
@@ -45,35 +46,37 @@ func (db *DB) UpdateEmailStatus(id int, status string) (string, error) {
 	return updatedStatus, err
 }
 
-func (db *DB) InsertSpending(s models.Spending) (models.Spending, error) {
+func (db *DB) InsertSpending(userId int, s models.Spending) (models.Spending, error) {
 	var result models.Spending
 	err := db.Pool.QueryRow(
 		context.Background(),
-		`INSERT INTO spending (email_id, merchant, amount, currency, category, transaction_date, ai_confidence, confidence)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-		s.EmailID, s.Merchant, s.Amount, s.Currency, s.Category, s.TransactionDate, s.AIConfidence, s.Confidence,
+		`INSERT INTO spending (email_id, merchant, amount, currency, category, transaction_date, ai_confidence, confidence, user_id)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+		s.EmailID, s.Merchant, s.Amount, s.Currency, s.Category, s.TransactionDate, s.AIConfidence, s.Confidence, userId,
 	).Scan(
 		&result.ID,
 		&result.Merchant,
-		&result.Amount, &result.Currency,
+		&result.Amount,
+		&result.Currency,
 		&result.Category,
 		&result.TransactionDate,
 		&result.AIConfidence,
 		&result.Confidence,
 		&result.CreatedAt,
 		&result.EmailID,
+		&result.UserId,
 	)
 	return result, err
 }
 
-func (db *DB) InsertSaaSDiscovery(s models.SaaSDiscovery) (models.SaaSDiscovery, error) {
+func (db *DB) InsertSaaSDiscovery(userId int, s models.SaaSDiscovery) (models.SaaSDiscovery, error) {
 	var result models.SaaSDiscovery
 	err := db.Pool.QueryRow(
 		context.Background(),
-		`INSERT INTO saas_discovery (email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		`INSERT INTO saas_discovery (email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence, user_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
-		s.EmailID, s.ProductName, s.SignalType, s.BillingCycle, s.EstimatedCost, s.Currency, s.AIConfidence, s.Confidence,
+		s.EmailID, s.ProductName, s.SignalType, s.BillingCycle, s.EstimatedCost, s.Currency, s.AIConfidence, s.Confidence, userId,
 	).Scan(
 		&result.ID,
 		&result.ProductName,
@@ -85,13 +88,13 @@ func (db *DB) InsertSaaSDiscovery(s models.SaaSDiscovery) (models.SaaSDiscovery,
 		&result.Confidence,
 		&result.CreatedAt,
 		&result.EmailID,
+		&result.UserId,
 	)
 	return result, err
 }
 
 func (db *DB) GetSpending(filter models.SpendingFilter) ([]models.Spending, error) {
-	query := `SELECT id, email_id, merchant, amount, currency, category, transaction_date, ai_confidence, confidence, created_at
-		FROM spending WHERE 1=1`
+	query := `SELECT * FROM spending WHERE 1=1`
 	args := []any{}
 	argIdx := 1
 
@@ -156,8 +159,7 @@ func (db *DB) GetSpendingSummary() (models.SpendingSummary, error) {
 
 func (db *DB) GetSaaSDiscoveries(filter models.SaaSDiscoveryFilter) ([]models.SaaSDiscovery, error) {
 
-	query := `SELECT id, email_id, product_name, signal_type, billing_cycle, estimated_cost, currency, ai_confidence, confidence, created_at
-	 FROM saas_discovery WHERE 1=1`
+	query := `SELECT * FROM saas_discovery WHERE 1=1`
 
 	args := []any{}
 	argIdx := 1
